@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/authentication");
 const multer = require("multer");
 const sharp = require("sharp");
+const { sendWelcomeEmail, sendCancleEmail } = require("../emails/account");
 
 router.get("/", (req, res) => {
 	res.send("Hello");
@@ -24,6 +25,7 @@ router.post("/newUser", async (req, res) => {
 	try {
 		const token = await user.findByToken();
 		res.status(201).send({ user, token });
+		sendWelcomeEmail(user.email, user.fname);
 	} catch (error) {
 		console.log(error);
 		res.status(400).send(error);
@@ -51,6 +53,7 @@ router.patch("/userUpdate/me", auth, async (req, res) => {
 });
 router.delete("/deleteUser/me", auth, async (req, res) => {
 	try {
+		sendCancleEmail(req.user.email, req.user.fname);
 		await req.user.remove();
 		res.send({ Success: "Deleted You Successfully" });
 	} catch (error) {
@@ -66,7 +69,6 @@ router.post("/userLogin", async (req, res) => {
 			req.body.password
 		);
 		const token = await user.findByToken();
-		const tk = jwt.verify(token, "taskmanagerapi");
 		res.send({ user, token });
 	} catch (error) {
 		console.log(error);
