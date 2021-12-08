@@ -30,7 +30,7 @@ router.get("/tasks/me", auth, async (req, res) => {
 			match,
 			options: {
 				limit: parseInt(req.query.limit ?? 0),
-				//skip: Number(req.query.skip ?? 0),
+				skip: Number(req.query.skip ?? 0),
 				sort,
 			},
 		});
